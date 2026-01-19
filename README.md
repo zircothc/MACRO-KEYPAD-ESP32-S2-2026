@@ -1,12 +1,18 @@
 # MACRO-KEYPAD-ESP32-S2-2026
 Macro keypad with web configurator
 
-Simply 4x4 keypad and 3 RGB LEDS conected to a cheap Lolin s2 Mini (ESP32 S2)
+4x4 keypad
+
+1 RGB neopixel style LED
+
+Lolin S2 Mini (ESP32 S2)
+
+This is a basic but powerfull programmable macro keypad. Access keypad over wifi, configure your keys, long text, delays into 16 slots, save and run.
 
 Arduino code.
 
-# RED LEDS:
-Keypad starts into CONFIG MODE. You can access to "Lolin_keypad" AP with your smartphone or PC.
+# RED LED:
+Keypad starts into CONFIG MODE. You can access to "Lolin_Keypad" AP with your smartphone or PC.
 
 Default AP password is "12345678".
 
@@ -14,22 +20,23 @@ Go to 192.168.4.1
 
 You can change AP password and configure your macro keypad.
 
-"SAVE CONFIGURATION" when done. Leds will be green.
+"SAVE CONFIGURATION" when done. Led will turn green.
 
-# GREEN LEDS:
+# GREEN LED:
 Keypad is ready to type. 
 
-If you start keypad and dont want to configure simply press any key and leds will turn on green.
+If you power on keypad and dont want to configure, you want to use it, press any key and led will turn  green.
 
-If you wnat to configure keypad, power off and power on again and leds will be red (ready to config).
+If you need to configure keypad, power off and power on again. Led will be red (ready to config) again.
 
-# BLUE LEDS:
+# BLUE LED:
 Keypad is sending text and keys stored on pressed key.
 
-Libraries needed: Read code.
+Libraries needed: Read code. I will update urls.
 
-There are code tricks to become a Spanish (Spain) keyboard. Mostly all special characters are maped to key combinations.
+There are code tricks to become a Spanish (Spain) keyboard. Mostly all special characters are converted to key combinations. Not all :(
 
-If your language is not Spanish may be you need to change code.
+If your language is not Spanish may be you need to clean or change the code.
+
 
 
