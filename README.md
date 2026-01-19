@@ -3,6 +3,8 @@ Macro keypad with web configurator
 
 Simply 4x4 keypad and 3 RGB LEDS conected to a cheap Lolin s2 Mini (ESP32 S2)
 
+Arduino code.
+
 # RED LEDS:
 Keypad starts into CONFIG MODE. You can access to "Lolin_keypad" AP with your smartphone or PC.
 
