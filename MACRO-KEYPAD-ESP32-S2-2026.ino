@@ -1,3 +1,11 @@
+// ==========================================
+// LOLIN S2 MINI MACRO KEYPAD
+// ZCARLOS 2026
+// ==========================================
+
+// ==========================================
+// LIBRERIAS
+// ==========================================
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
@@ -34,7 +42,6 @@ byte rowPins[COLS] = {34, 36, 38, 40};
 byte colPins[ROWS] = {1, 2, 4, 6};
 
 Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS); 
-
 const char keycodes[16] = {'1','2','3','A','4','5','6','B','7','8','9','C','*','0','#','D'};
 
 // ==========================================
@@ -63,7 +70,7 @@ void ponerColor(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 // ==========================================
-// HTML
+// HTML (RESTAURADO CON TODOS LOS COMANDOS)
 // ==========================================
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
@@ -74,7 +81,7 @@ const char index_html[] PROGMEM = R"rawliteral(
   <style>
     body { font-family: sans-serif; text-align: center; background-color: #222; color: #fff; padding-bottom: 50px; }
     h2 { margin-top: 10px; color: #04AA6D; }
-    input { width: 75%; padding: 4px; margin: 1px; border-radius: 4px; border: 1px solid #555; background: #333; color: #fff; font-size: 16px; }
+    input[type=text], input[type=password] { width: 75%; padding: 4px; margin: 1px; border-radius: 4px; border: 1px solid #555; background: #333; color: #fff; font-size: 16px; }
     .btn { background-color: #04AA6D; color: white; padding: 15px 30px; margin: 20px 0; border: none; cursor: pointer; width: 90%; font-size: 18px; border-radius: 5px; font-weight: bold; }
     .btn:hover { opacity: 0.8; }
     .row { display: flex; align-items: center; justify-content: center; }
@@ -85,28 +92,35 @@ const char index_html[] PROGMEM = R"rawliteral(
     .tag { color: #f39c12; font-weight: bold; font-family: monospace; }
     .desc { color: #ccc; margin-left: 5px; }
     .help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-    .wifi-box { border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 10px; }
+    .wifi-box { border-bottom: 1px solid #555; padding-bottom: 5px; margin-bottom: 5px; }
     .wifi-label { width: auto; font-size: 16px; margin-right: 10px; color: #04AA6D; }
+    .show-pass { font-size: 14px; color: #aaa; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; }
+    .show-pass input { width: auto; margin-right: 5px; }
   </style>
 </head>
 <body>
   <h2>Configuraci&oacute;n</h2>
   <div id="status"></div>
+  
   <div class="row wifi-box">
     <label class="wifi-label">Pass WiFi:</label>
-    <input type="text" id="wifi_pass" placeholder="M&iacute;nimo 8 caracteres">
+    <input type="password" id="wifi_pass" placeholder="M&iacute;nimo 8 caracteres">
   </div>
+  <div class="show-pass">
+    <input type="checkbox" onclick="togglePass()"> Mostrar contrase&ntilde;a
+  </div>
+
   <div class="help-box">
     <h3>Comandos:</h3>
     <div class="help-grid">
       <div><span class="tag">[ENTER]</span><span class="desc">Intro</span></div>
       <div><span class="tag">[TAB]</span><span class="desc">Tab</span></div>
       <div><span class="tag">[ESC]</span><span class="desc">Esc</span></div>
-      <div><span class="tag">[BACKSPACE]</span><span class="desc">Del</span></div>
-      <div><span class="tag">[GUI]</span><span class="desc">Win</span></div>
-      <div><span class="tag">[CTRL]</span><span class="desc">Ctrl</span></div>
+      <div><span class="tag">[BACKSPACE]</span><span class="desc">Borrar</span></div>
+      <div><span class="tag">[WIN]</span><span class="desc">Windows</span></div>
+      <div><span class="tag">[CTRL]</span><span class="desc">Control</span></div>
       <div><span class="tag">[ALT]</span><span class="desc">Alt</span></div>
-      <div><span class="tag">[SHIFT]</span><span class="desc">Shift</span></div>
+      <div><span class="tag">[SHIFT]</span><span class="desc">Mayus</span></div>
       <div><span class="tag">[DELAY5]</span><span class="desc">0.5s</span></div>
     </div>
   </div>
@@ -120,12 +134,19 @@ const char index_html[] PROGMEM = R"rawliteral(
       html += '<input type="text" id="key' + i + '" placeholder="Vac&iacute;o"></div>';
     }
     document.getElementById("container").innerHTML = html;
+    
+    function togglePass() {
+      var x = document.getElementById("wifi_pass");
+      if (x.type === "password") { x.type = "text"; } else { x.type = "password"; }
+    }
+
     fetch('/getValues').then(res => res.json()).then(data => {
       for(let i=0; i<16; i++) {
         if(data["key"+i]) document.getElementById("key"+i).value = data["key"+i];
       }
       if(data["wifi_pass"]) document.getElementById("wifi_pass").value = data["wifi_pass"];
     });
+
     function guardarDatos() {
       const st = document.getElementById("status");
       st.style.display = "block";
@@ -150,89 +171,127 @@ const char index_html[] PROGMEM = R"rawliteral(
 // ==========================================
 void enviarRaw(uint8_t tecla, uint8_t modifiers) {
     KeyReport report = {0};
-    report.modifiers = modifiers; 
+    report.modifiers = modifiers; // 8=Win, 1=Ctrl, 2=Shift, 4=Alt
     report.keys[0] = tecla;
     Keyboard.sendReport(&report);
-    delay(15);
+    delay(20); 
     Keyboard.releaseAll();
+    delay(20);
+}
+
+// Convierte ASCII a HID Usage ID
+uint8_t getHIDCode(char c) {
+  if (c >= 'a' && c <= 'z') return c - 93; 
+  if (c >= 'A' && c <= 'Z') return c - 61; 
+  if (c >= '1' && c <= '9') return c - 19; 
+  if (c == '0') return 39;
+  return 0;
 }
 
 void escribirSimboloSimple(char c) {
-    // CORRECCIÓN PARÉNTESIS ESPAÑOL
+    if (c == '#') { Keyboard.press(KEY_RIGHT_ALT); Keyboard.write('3'); Keyboard.releaseAll(); return; }
+    if (c == '"') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('2'); Keyboard.releaseAll(); return; }
+    if (c == '*') { enviarRaw(48, 2); return; } 
+    if (c == '&') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('6'); Keyboard.releaseAll(); return; }
+    if (c == '/') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('7'); Keyboard.releaseAll(); return; }
     if (c == '(') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('8'); Keyboard.releaseAll(); return; }
     if (c == ')') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('9'); Keyboard.releaseAll(); return; }
-    
-    // RESTO DE CORRECCIONES ISO
-    if (c == '-') { Keyboard.write('/'); return; }
+    if (c == '=') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('0'); Keyboard.releaseAll(); return; }
+    if (c == '?') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write(45); Keyboard.releaseAll(); return; }
+    if (c == '-') { Keyboard.write('/'); return; } 
     if (c == '_') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('/'); Keyboard.releaseAll(); return; }
     if (c == '@') { Keyboard.press(KEY_RIGHT_ALT); Keyboard.write('2'); Keyboard.releaseAll(); return; }
-    if (c == '\\') { Keyboard.press(KEY_RIGHT_ALT); Keyboard.write('`'); Keyboard.releaseAll(); return; }
+    if (c == '\\') { Keyboard.press(KEY_RIGHT_ALT); Keyboard.write('`'); Keyboard.releaseAll(); return; } 
     if (c == ':') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('.'); Keyboard.releaseAll(); return; }
     if (c == ';') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write(','); Keyboard.releaseAll(); return; } 
-    if (c == '=') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('0'); Keyboard.releaseAll(); return; }
-    if (c == '?') { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.write('\''); Keyboard.releaseAll(); return; } 
+    if (c == '\'') { Keyboard.write(45); return; } 
     Keyboard.print(c);
 }
 
+// ==========================================
+// EJECUTAR MACRO (MODIFICADORES RESTAURADOS)
+// ==========================================
 void ejecutarMacro(String texto) {
+  Keyboard.releaseAll();
+  delay(50);
+
   int len = texto.length();
-  bool holdingModifier = false; 
+
   for (int i = 0; i < len; i++) {
     char c = texto.charAt(i);
     
-    // 1. COMANDOS
+    // 1. COMANDOS [XXX]
     if (c == '[') {
       String tag = "";
       i++; 
       while (i < len && texto.charAt(i) != ']') { tag += texto.charAt(i); i++; }
       tag.toUpperCase();
+
       if (tag == "ENTER") Keyboard.write(KEY_RETURN);
       else if (tag == "TAB") Keyboard.write(KEY_TAB);
       else if (tag == "ESC") Keyboard.write(KEY_ESC);
       else if (tag == "BACKSPACE" || tag == "BKSP") Keyboard.write(KEY_BACKSPACE);
-      else if (tag == "GUI" || tag == "WIN") { Keyboard.press(KEY_LEFT_GUI); holdingModifier = true; }
-      else if (tag == "CTRL" || tag == "CONTROL") { Keyboard.press(KEY_LEFT_CTRL); holdingModifier = true; }
-      else if (tag == "ALT") { Keyboard.press(KEY_LEFT_ALT); holdingModifier = true; }
-      else if (tag == "SHIFT") { Keyboard.press(KEY_LEFT_SHIFT); holdingModifier = true; }
+      
+      // === GESTIÓN DE MODIFICADORES (WIN, CTRL, ALT, SHIFT) ===
+      else if (tag == "WIN" || tag == "GUI" || tag == "CTRL" || tag == "ALT" || tag == "SHIFT") {
+        
+        uint8_t modBit = 0;
+        uint8_t keyDef = 0;
+
+        // Definir qué bit de modificador activar
+        if (tag == "WIN" || tag == "GUI") modBit = 8;
+        else if (tag == "CTRL") modBit = 1;
+        else if (tag == "SHIFT") modBit = 2;
+        else if (tag == "ALT") modBit = 4;
+
+        // Mirar si hay letra siguiente para hacer combo
+        char nextChar = (i + 1 < len) ? texto.charAt(i + 1) : 0;
+        uint8_t hidCode = getHIDCode(nextChar);
+        
+        if (hidCode != 0) {
+            // ENVÍO ATÓMICO: Modificador + Código Tecla
+            enviarRaw(hidCode, modBit); 
+            i++; // Saltamos la letra
+        } else {
+            // Solo tecla modificadora (pulsar y soltar)
+            // Mapeo manual porque enviarRaw(0, modBit) puede no actuar como pulsación suelta
+            if (modBit == 8) keyDef = KEY_LEFT_GUI;
+            if (modBit == 1) keyDef = KEY_LEFT_CTRL;
+            if (modBit == 2) keyDef = KEY_LEFT_SHIFT;
+            if (modBit == 4) keyDef = KEY_LEFT_ALT;
+            
+            Keyboard.press(keyDef);
+            delay(100);
+            Keyboard.releaseAll();
+        }
+      }
+      
       else if (tag.startsWith("DELAY")) {
         String num = tag.substring(5);
         int d = num.toInt();
         if (d > 0) delay(d * 100); 
       }
-      if (holdingModifier && (tag=="ENTER" || tag=="TAB" || tag=="ESC")) { Keyboard.releaseAll(); holdingModifier = false; }
     } 
     
-    // 2. CORRECCIÓN MENOR Y MAYOR (RAW HID 100)
+    // 2. CORRECCIONES MENOR/MAYOR
     else if (c == '<') { enviarRaw(100, 0); }
     else if (c == '>') { enviarRaw(100, 2); }
     
-    // 3. TILDES, Ñ, º y ª
+    // 3. UTF-8
     else if (c == (char)0xC3) { 
        char next = texto.charAt(i+1); i++; 
-       if (next == (char)0xA1) { Keyboard.print('\''); Keyboard.print('a'); }
-       else if (next == (char)0xA9) { Keyboard.print('\''); Keyboard.print('e'); }
-       else if (next == (char)0xAD) { Keyboard.print('\''); Keyboard.print('i'); }
-       else if (next == (char)0xB3) { Keyboard.print('\''); Keyboard.print('o'); }
-       else if (next == (char)0xBA) { Keyboard.print('\''); Keyboard.print('u'); }
-       else if (next == (char)0x81) { Keyboard.print('\''); Keyboard.print('A'); }
-       else if (next == (char)0x89) { Keyboard.print('\''); Keyboard.print('E'); }
-       else if (next == (char)0x8D) { Keyboard.print('\''); Keyboard.print('I'); }
-       else if (next == (char)0x93) { Keyboard.print('\''); Keyboard.print('O'); }
-       else if (next == (char)0x9A) { Keyboard.print('\''); Keyboard.print('U'); }
-       else if (next == (char)0xB1) { Keyboard.print(';'); }
-       else if (next == (char)0x91) { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.print(';'); Keyboard.releaseAll(); }
+       if (next == (char)0xA1) { Keyboard.print('\''); Keyboard.print('a'); } 
+       else if (next == (char)0xB3) { Keyboard.print('\''); Keyboard.print('o'); } 
+       else if (next == (char)0xA9) { Keyboard.print('\''); Keyboard.print('e'); } 
+       else if (next == (char)0xAD) { Keyboard.print('\''); Keyboard.print('i'); } 
+       else if (next == (char)0xBA) { Keyboard.print('\''); Keyboard.print('u'); } 
+       else if (next == (char)0xB1) { Keyboard.print(';'); } 
+       else if (next == (char)0x91) { Keyboard.press(KEY_LEFT_SHIFT); Keyboard.print(';'); Keyboard.releaseAll(); } 
     }
-    else if (c == (char)0xC2) { 
-       char next = texto.charAt(i+1); i++;
-       if (next == (char)0xBA) { enviarRaw(53, 0); } // º
-       else if (next == (char)0xAA) { enviarRaw(53, 2); } // ª
-    }
-    
-    // 4. RESTO
+    // 4. RESTO NORMAL
     else {
       escribirSimboloSimple(c);
-      if (holdingModifier) { Keyboard.releaseAll(); holdingModifier = false; }
-      delay(5);
+      delay(20);
     }
   }
   Keyboard.releaseAll();
