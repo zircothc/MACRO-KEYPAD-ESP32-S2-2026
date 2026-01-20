@@ -69,9 +69,7 @@ void ponerColor(uint8_t r, uint8_t g, uint8_t b) {
   pixels.show();
 }
 
-// ==========================================
-// HTML (RESTAURADO CON TODOS LOS COMANDOS)
-// ==========================================
+
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
 <head>
@@ -79,59 +77,136 @@ const char index_html[] PROGMEM = R"rawliteral(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: sans-serif; text-align: center; background-color: #222; color: #fff; padding-bottom: 50px; }
-    h2 { margin-top: 10px; color: #04AA6D; }
-    input[type=text], input[type=password] { width: 75%; padding: 4px; margin: 1px; border-radius: 4px; border: 1px solid #555; background: #333; color: #fff; font-size: 16px; }
-    .btn { background-color: #04AA6D; color: white; padding: 15px 30px; margin: 20px 0; border: none; cursor: pointer; width: 90%; font-size: 18px; border-radius: 5px; font-weight: bold; }
+    body { font-family: sans-serif; text-align: center; background-color: #eee; color: #fff; padding-bottom: 50px; margin: 0; }
+    h2 { margin-top: 15px; color: #04AA6D; margin-bottom: 10px; }
+    
+    /* INPUTS DE TEXTO Y PASSWORD (NO CHECKBOX) */
+    input[type="text"], input[type="password"] { 
+      box-sizing: border-box; 
+      border-radius: 4px; 
+      border: 1px solid #555; 
+      background: #444; 
+      color: #fff; 
+      font-size: 15px; 
+      padding: 8px;
+    }
+    
+    .btn { background-color: #04AA6D; color: white; padding: 15px 30px; margin: 20px 0; border: none; cursor: pointer; width: 95%; font-size: 18px; border-radius: 5px; font-weight: bold; }
     .btn:hover { opacity: 0.8; }
-    .row { display: flex; align-items: center; justify-content: center; }
-    label { width: 30px; font-weight: bold; font-size: 20px; color: #ddd; }
-    #status { display: none; padding: 15px; margin: 10px auto; width: 85%; border-radius: 5px; font-weight: bold; font-size: 18px; }
-    .help-box { background: #333; margin: 10px auto; width: 90%; padding: 10px; border-radius: 5px; font-size: 12px; text-align: left; }
-    .help-box h3 { margin: 0 0 5px 0; font-size: 14px; color: #aaa; border-bottom: 1px solid #555; padding-bottom: 5px; }
+    
+    /* ZONA WIFI EN UNA SOLA FILA */
+    .wifi-container { 
+      margin-bottom: 10px; 
+      border-bottom: 1px solid #555; 
+      padding: 15px 5px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      gap: 10px; /* Espacio entre elementos */
+    }
+    
+    .wifi-label { font-weight: bold; color: #04AA6D; white-space: nowrap; }
+    
+    /* Checkbox y texto a la derecha */
+    .show-pass-group { 
+      display: flex; 
+      align-items: center; 
+      font-size: 12px; 
+      color: #aaa; 
+      white-space: nowrap; 
+    }
+    .show-pass-group input { margin-right: 4px; cursor: pointer; }
+    
+    /* ZONA AYUDA (4 COLUMNAS) */
+    .help-box { background: #333; margin: 5px auto; width: 98%; max-width: 800px; padding: 8px; border-radius: 5px; font-size: 11px; text-align: left; box-sizing: border-box; }
+    .help-box h3 { margin: 0 0 5px 0; font-size: 13px; color: #aaa; border-bottom: 1px solid #555; padding-bottom: 3px; }
     .tag { color: #f39c12; font-weight: bold; font-family: monospace; }
-    .desc { color: #ccc; margin-left: 5px; }
-    .help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-    .wifi-box { border-bottom: 1px solid #555; padding-bottom: 5px; margin-bottom: 5px; }
-    .wifi-label { width: auto; font-size: 16px; margin-right: 10px; color: #04AA6D; }
-    .show-pass { font-size: 14px; color: #aaa; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; }
-    .show-pass input { width: auto; margin-right: 5px; }
+    
+    .help-grid { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 3px; 
+    }
+    
+    /* ZONA GRID 4x4 DE TECLAS */
+    #container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 6px;
+      width: 98%;      
+      max-width: 800px;
+      margin: 10px auto;
+      padding: 0 5px;
+      box-sizing: border-box;
+    }
+    
+    .key-box {
+      background-color: #333;
+      padding: 5px;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1px solid #444;
+    }
+    
+    .key-label {
+      font-weight: bold;
+      color: #f39c12;
+      margin-bottom: 2px;
+      font-size: 16px;
+    }
+    
+    .key-input {
+      width: 100%;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    #status { display: none; padding: 15px; margin: 10px auto; width: 85%; border-radius: 5px; font-weight: bold; font-size: 18px; }
   </style>
 </head>
 <body>
   <h2>Configuraci&oacute;n</h2>
   <div id="status"></div>
   
-  <div class="row wifi-box">
-    <label class="wifi-label">Pass WiFi:</label>
-    <input type="password" id="wifi_pass" placeholder="M&iacute;nimo 8 caracteres">
-  </div>
-  <div class="show-pass">
-    <input type="checkbox" onclick="togglePass()"> Mostrar contrase&ntilde;a
+  <div class="wifi-container">
+    <label class="wifi-label">WiFi:</label>
+    <input type="password" id="wifi_pass" style="width: 140px; flex-grow: 1; max-width: 250px;" placeholder="Pass">
+    
+    <div class="show-pass-group">
+      <input type="checkbox" onclick="togglePass()"> <span>Mostrar</span>
+    </div>
   </div>
 
   <div class="help-box">
     <h3>Comandos:</h3>
     <div class="help-grid">
-      <div><span class="tag">[ENTER]</span><span class="desc">Intro</span></div>
-      <div><span class="tag">[TAB]</span><span class="desc">Tab</span></div>
-      <div><span class="tag">[ESC]</span><span class="desc">Esc</span></div>
-      <div><span class="tag">[BACKSPACE]</span><span class="desc">Borrar</span></div>
-      <div><span class="tag">[WIN]</span><span class="desc">Windows</span></div>
-      <div><span class="tag">[CTRL]</span><span class="desc">Control</span></div>
-      <div><span class="tag">[ALT]</span><span class="desc">Alt</span></div>
-      <div><span class="tag">[SHIFT]</span><span class="desc">Mayus</span></div>
-      <div><span class="tag">[DELAY5]</span><span class="desc">0.5s</span></div>
+      <div><span class="tag">[ENTER]</span></div>
+      <div><span class="tag">[TAB]</span></div>
+      <div><span class="tag">[ESC]</span></div>
+      <div><span class="tag">[BKSP]</span></div>
+      <div><span class="tag">[WIN]</span></div>
+      <div><span class="tag">[CTRL]</span></div>
+      <div><span class="tag">[ALT]</span></div>
+      <div><span class="tag">[SHIFT]</span></div>
     </div>
+    <div style="margin-top:5px; text-align:center; color:#aaa;">Usa [DELAY5] para esperar 0.5s</div>
   </div>
+
   <div id="container"></div>
+
   <button onclick="guardarDatos()" class="btn">GUARDAR TODO</button>
+
   <script>
     const keys = ['1','2','3','A','4','5','6','B','7','8','9','C','*','0','#','D'];
     let html = "";
+    
     for(let i=0; i<16; i++) {
-      html += '<div class="row"><label>' + keys[i] + '</label>';
-      html += '<input type="text" id="key' + i + '" placeholder="Vac&iacute;o"></div>';
+      html += '<div class="key-box">';
+      html += '<span class="key-label">' + keys[i] + '</span>';
+      html += '<input type="text" id="key' + i + '" class="key-input" placeholder="...">';
+      html += '</div>';
     }
     document.getElementById("container").innerHTML = html;
     
