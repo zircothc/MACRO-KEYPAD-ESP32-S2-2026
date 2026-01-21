@@ -11,6 +11,8 @@ Lolin S2 Mini (ESP32 S2)
 This is a basic but powerfull programmable macro keypad. Access keypad over wifi, configure your keys, long text, delays into 16 slots, save and run.
 
 Arduino code.
+
+Configurator:
 <img width="1180" height="640" alt="pantalla" src="https://github.com/user-attachments/assets/c9917541-544d-490d-ab03-717039fdcfa6" />
 
 # RED LED:
