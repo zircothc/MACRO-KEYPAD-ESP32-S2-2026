@@ -1,5 +1,6 @@
 # MACRO-KEYPAD-ESP32-S2-2026
 Macro keypad with web configurator
+![macro_kp](https://github.com/user-attachments/assets/aa050ffb-19e1-4d30-b1a6-2da01ade3e39)
 
 4x4 keypad
 
